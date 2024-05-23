@@ -1,12 +1,20 @@
 package Clases;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import java.awt.*;
 import java.util.ArrayList;
@@ -14,6 +22,7 @@ import java.util.ArrayList;
 public class JFrameServidor extends JFrame implements ActionListener {
     private JLabel LabelIma;
     private JPanel PanelAzul;
+    public static JTextArea textArea;
     JTextField huespedField, numeroHabitacionField, habitacionEliminarField, nombreBuscarHuespedField;
     JComboBox<String> tipoHabitacionComboBox;
     private ArrayList<Habitacion> reservas; // Lista para almacenar las reservas
@@ -21,6 +30,92 @@ public class JFrameServidor extends JFrame implements ActionListener {
     public static void main(String[] args) {
         // Instancia la clase JFrameServidor
         JFrameServidor frame = new JFrameServidor();
+        
+        ServerSocket servidor = null;
+        Socket sc = null;
+        DataInputStream in;
+        DataOutputStream out;
+        final int PUERTO = 1234;
+
+        // Crear la ventana principal
+        JFrame framee = new JFrame("Servidor");
+        framee.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        framee.setSize(400, 300);
+        framee.setLayout(new BorderLayout());
+
+        // Crear un área de texto para mostrar los mensajes
+        textArea = new JTextArea();
+        textArea.setEditable(false);
+        framee.add(new JScrollPane(textArea), BorderLayout.CENTER);
+
+        // Crear un panel para el campo de texto y el botón
+        JPanel panel = new JPanel();
+        panel.setLayout(new BorderLayout());
+
+        // Crear el campo de texto para escribir mensajes
+        JTextField textField = new JTextField();
+        panel.add(textField, BorderLayout.CENTER);
+
+        // Crear el botón para enviar mensajes
+        JButton sendButton = new JButton("Enviar");
+        panel.add(sendButton, BorderLayout.EAST);
+
+        framee.add(panel, BorderLayout.SOUTH);
+
+        // Mostrar la ventana
+        framee.setVisible(true);
+
+        try {
+            servidor = new ServerSocket(PUERTO);
+            textArea.append("Se ha iniciado el servidor\n");
+
+            sc = servidor.accept();
+
+            in = new DataInputStream(sc.getInputStream());
+            out = new DataOutputStream(sc.getOutputStream());
+
+            // Leer mensajes del cliente en un hilo separado
+            Thread clientHandler = new Thread(() -> {
+                try {
+                    while (true) {
+                        String mensaje = in.readUTF();
+                        textArea.append("Cliente: " + mensaje + "\n");
+                    }
+                } catch (IOException aa) {
+                    textArea.append("Error al leer mensaje del cliente: " + aa.getMessage() + "\n");
+                }
+            });
+            clientHandler.start();
+
+            // Añadir un ActionListener al botón de enviar
+            sendButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    try {
+                        String mensaje = textField.getText();
+                        out.writeUTF(mensaje);
+                        textArea.append("Servidor: " + mensaje + "\n");
+                        textField.setText("");
+                    } catch (IOException ex) {
+                        textArea.append("Error al enviar mensaje: " + ex.getMessage() + "\n");
+                    }
+                }
+            });
+
+        } catch (IOException ee) {
+            textArea.append("Error: " + ee.getMessage() + "\n");
+            ee.printStackTrace();
+        } finally {
+            if (servidor != null && !servidor.isClosed()) {
+                try {
+                    servidor.close();
+                } catch (IOException ee) {
+                    textArea.append("Error al cerrar el servidor: " + ee.getMessage() + "\n");
+                }
+            }
+        
+    }
+
     }
 
     public JFrameServidor() {
@@ -32,6 +127,10 @@ public class JFrameServidor extends JFrame implements ActionListener {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         // Fin del JFrame
+
+        
+
+        
 
         // Area para solicitudes
         LabelIma = new JLabel(); // En este Label se inserta la imagen de fondo
@@ -62,6 +161,12 @@ public class JFrameServidor extends JFrame implements ActionListener {
         reservar.setBounds(50, 200, 100, 30);
         reservar.addActionListener(this);
         PanelAzul.add(reservar);
+
+        JButton Prender = new JButton("Prender");
+        Prender.setForeground(Color.black);
+        Prender.setBounds(600, 450, 100, 30);
+        Prender.addActionListener(this);
+        PanelAzul.add(Prender);
 
         JButton eliminar = new JButton("Eliminar");
         eliminar.setForeground(Color.BLACK);
@@ -191,6 +296,10 @@ public class JFrameServidor extends JFrame implements ActionListener {
             } else {
                 JOptionPane.showMessageDialog(this, "Por favor, complete el campo para buscar.");
             }
+        }
+
+        if(e.getActionCommand().equals("Prender")){
+
         }
     } // Fin de actionPerformed
 }

@@ -9,7 +9,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.*;
 import java.util.ArrayList;
-import javax.swing.*;
 
 public class JFrameServidor extends JFrame implements ActionListener {
     private JLabel LabelIma;
@@ -25,7 +24,7 @@ public class JFrameServidor extends JFrame implements ActionListener {
     public JFrameServidor() {
         reservas = new ArrayList<>(); // Inicializa la lista de reservas
 
-        setBounds(0, 0, 800, 500);
+        setBounds(0, 0, 800, 800);
         setBackground(new Color(77, 151, 75));
         setLayout(null);
         setLocationRelativeTo(null);
@@ -45,7 +44,7 @@ public class JFrameServidor extends JFrame implements ActionListener {
 
         // Panel para poner color arriba
         PanelAzul = new JPanel();
-        PanelAzul.setBounds(0, 0, 800, 800);
+        PanelAzul.setBounds(0, 0, 900, 900);
         PanelAzul.setBackground(new Color(46, 54, 144));
         PanelAzul.setLayout(null);
         Panel.add(PanelAzul);
@@ -98,7 +97,7 @@ public class JFrameServidor extends JFrame implements ActionListener {
         PanelAzul.add(huespedEiminarJLabel);
 
         JLabel huespedAgregarJLabel = new JLabel("Nombre de huésped que reserva:");
-        huespedAgregarJLabel.setBounds(50, 50, 200, 30);
+        huespedAgregarJLabel.setBounds(50, 0, 200, 30);
         huespedAgregarJLabel.setForeground(Color.white);
         PanelAzul.add(huespedAgregarJLabel);
 
